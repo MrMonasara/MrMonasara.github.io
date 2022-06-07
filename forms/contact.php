@@ -1,41 +1,42 @@
 <?php
-  /**
-  * Requires the "PHP Email Form" library
-  * The "PHP Email Form" library is available only in the pro version of the template
-  * The library should be uploaded to: vendor/php-email-form/php-email-form.php
-  * For more info and help: https://bootstrapmade.com/php-email-form/
-  */
 
-  // Replace contact@example.com with your real receiving email address
-  $receiving_email_address = 'contact@example.com';
+require_once "Mail.php";
 
-  if( file_exists($php_email_form = '../assets/vendor/php-email-form/php-email-form.php' )) {
-    include( $php_email_form );
-  } else {
-    die( 'Unable to load the "PHP Email Form" Library!');
-  }
+$from = 'abhupatel122@gmail.com';
+$to = 'abhupatel122@gmail.com';
+$field_name = $_POST['name'];
+$field_email = $_POST['email'];
+$field_message = $_POST['message'];
+$subject = $_POST['subject'];
 
-  $contact = new PHP_Email_Form;
-  $contact->ajax = true;
-  
-  $contact->to = $receiving_email_address;
-  $contact->from_name = $_POST['name'];
-  $contact->from_email = $_POST['email'];
-  $contact->subject = $_POST['subject'];
+$body_message = 'From: '.$field_name."\n";
+$body_message .= 'E-mail: '.$field_email."\n";
+$body_message .= 'Message: '.$field_message;
+$body = $body_message;
 
-  // Uncomment below code if you want to use SMTP to send emails. You need to enter your correct SMTP credentials
-  /*
-  $contact->smtp = array(
-    'host' => 'example.com',
-    'username' => 'example',
-    'password' => 'pass',
-    'port' => '587'
-  );
-  */
+$headers = array(
+'From' => $from,
+'To' => $to,
+'Subject' => $subject
+);
 
-  $contact->add_message( $_POST['name'], 'From');
-  $contact->add_message( $_POST['email'], 'Email');
-  $contact->add_message( $_POST['message'], 'Message', 10);
+$smtp = Mail::factory('smtp', array(
+'host' => 'ssl://smtp.gmail.com',
+'port' => '465',
+'auth' => true,
+'username' => 'abhupatel122@gmail.com',
+'password' => 'twduzypyfrhgvqbb'
+));
 
-  echo $contact->send();
+$mail = $smtp->send($to, $headers, $body);
+
+if (PEAR::isError($mail)) {
+     $resArray= array('success' => true);
+     header('Content-Type: application/json');
+     echo json_encode($resArray);
+} else {
+     $resArray= array('success' => false);
+     header('Content-Type: application/json');
+     echo json_encode($resArray);
+}
 ?>
